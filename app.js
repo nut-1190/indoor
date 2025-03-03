@@ -93,6 +93,23 @@ function populateDestinationDropdown() {
         destinationDropdown.appendChild(option);
     });
 }
+// Generate step-by-step directions
+function generateDirections(path) {
+    const directionsList = document.getElementById('directions-list');
+    directionsList.innerHTML = '';
+
+    if (!path || path.length === 0) {
+        directionsList.innerHTML = '<li>No route found.</li>';
+        return;
+    }
+
+    path.forEach((point, index) => {
+        const step = document.createElement('li');
+        step.textContent = `Step ${index + 1}: Move to ${point.name}`;
+        directionsList.appendChild(step);
+    });
+}
+
 
 // Set up event listeners
 function setupEventListeners() {
