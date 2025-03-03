@@ -23,34 +23,23 @@ function setupCanvas() {
     canvas.width = floorPlanImg.width;
     canvas.height = floorPlanImg.height;
 
-    // Update canvas size when image loads
     floorPlanImg.onload = () => {
         canvas.width = floorPlanImg.clientWidth;
         canvas.height = floorPlanImg.clientHeight;
     };
 
-    // Handle window resize
     window.addEventListener('resize', () => {
         canvas.width = floorPlanImg.clientWidth;
         canvas.height = floorPlanImg.clientHeight;
-
-        // Redraw route if needed
         if (currentLocation && destinationLocation) {
             drawRoute(currentLocation, destinationLocation);
         }
     });
 }
 
-// Now define initialize(), which will call setupCanvas()
-function initialize() {
-    setupCanvas(); // Call it here
-    setupEventListeners();
-}
-
-// Initialize the application
+// Initialize application
 async function initialize() {
     try {
-        // Load location data
         const response = await fetch('data/locations.json');
         const data = await response.json();
         locations = data.locations;
@@ -66,12 +55,9 @@ async function initialize() {
     }
 }
 
-// Populate source dropdown
+// Populate dropdowns
 function populateSourceDropdown() {
-    while (sourceDropdown.options.length > 1) {
-        sourceDropdown.remove(1);
-    }
-
+    while (sourceDropdown.options.length > 1) sourceDropdown.remove(1);
     locations.forEach(location => {
         const option = document.createElement('option');
         option.value = location.id;
@@ -80,12 +66,8 @@ function populateSourceDropdown() {
     });
 }
 
-// Populate destination dropdown
 function populateDestinationDropdown() {
-    while (destinationDropdown.options.length > 1) {
-        destinationDropdown.remove(1);
-    }
-
+    while (destinationDropdown.options.length > 1) destinationDropdown.remove(1);
     locations.forEach(location => {
         const option = document.createElement('option');
         option.value = location.id;
@@ -93,10 +75,9 @@ function populateDestinationDropdown() {
         destinationDropdown.appendChild(option);
     });
 }
+
 // Generate step-by-step directions
-// Generate step-by-step directions from the path
 function generateDirections(path) {
-    const directionsList = document.getElementById('directions-list');
     directionsList.innerHTML = '';
 
     if (!Array.isArray(path) || path.length === 0) {
@@ -106,17 +87,13 @@ function generateDirections(path) {
 
     path.forEach((point, index) => {
         const step = document.createElement('li');
-        step.textContent = `Step ${index + 1}: Move to ${point.name || 'Unknown'}`;
+        step.textContent = `Step ${index + 1}: Move to ${point.name}`;
         directionsList.appendChild(step);
     });
 }
 
-
-
-
 // Set up event listeners
 function setupEventListeners() {
-    // Handle manual source selection
     sourceDropdown.addEventListener('change', function () {
         const selectedId = this.value;
         if (selectedId) {
@@ -126,32 +103,33 @@ function setupEventListeners() {
         }
     });
 
-    // Handle manual destination selection
     destinationDropdown.addEventListener('change', function () {
         navigateBtn.disabled = !destinationDropdown.value || !currentLocation;
     });
 
-    // Handle navigation
     navigateBtn.addEventListener('click', () => {
         const selectedId = destinationDropdown.value;
         if (selectedId && currentLocation) {
             destinationLocation = locations.find(loc => loc.id === selectedId);
             if (destinationLocation) {
-                drawRoute(currentLocation, destinationLocation);
-                generateDirections(currentLocation, destinationLocation);
+                const path = findPath(currentLocation, destinationLocation);
+                if (path) {
+                    drawRoute(path);
+                    generateDirections(path);
+                } else {
+                    console.error('No route found');
+                }
             }
         }
     });
 
-    // QR Scanner button
     scanQrBtn.addEventListener('click', openQrScanner);
     closeBtn.addEventListener('click', closeQrScanner);
 }
 
-// Open QR Scanner
+// QR Scanner functions
 function openQrScanner() {
     qrScannerModal.classList.remove('hidden');
-
     const scannerArea = document.getElementById('scanner-area');
     html5QrCode = new Html5Qrcode('scanner-area');
 
@@ -163,7 +141,6 @@ function openQrScanner() {
     ).catch(err => console.error('QR Scanner failed:', err));
 }
 
-// Close QR Scanner
 function closeQrScanner() {
     qrScannerModal.classList.add('hidden');
     if (html5QrCode && html5QrCode.isScanning) {
@@ -171,7 +148,6 @@ function closeQrScanner() {
     }
 }
 
-// Handle QR code scan
 function onQrCodeSuccess(qrCodeMessage) {
     const scannedLocation = locations.find(loc => loc.id === qrCodeMessage);
 
@@ -200,13 +176,7 @@ function updateMarker(marker, x, y) {
 }
 
 // Draw route between locations
-function drawRoute(start, end) {
-    const path = findPath(start, end);
-    if (!path || path.length < 2) {
-        console.error('No path found');
-        return;
-    }
-
+function drawRoute(path) {
     const ctx = routeOverlay.getContext('2d');
     ctx.clearRect(0, 0, routeOverlay.width, routeOverlay.height);
     ctx.strokeStyle = '#e74c3c';
@@ -217,78 +187,44 @@ function drawRoute(start, end) {
     path.forEach(point => ctx.lineTo(point.x, point.y));
     
     ctx.stroke();
-    updateMarker(destinationMarker, end.x, end.y);
-}
-// Reconstruct the shortest path from the parent map
-function reconstructPath(start, end, parentMap) {
-    const path = [];
-    let current = end;
-
-    while (current.id !== start.id) {
-        path.unshift(current);
-        current = parentMap.get(current.id);
-        if (!current) return null;  // Handle broken paths
-    }
-
-    path.unshift(start); // Include the start node
-    return path;
+    updateMarker(destinationMarker, path[path.length - 1].x, path[path.length - 1].y);
 }
 
-// Now define findPath(), which uses reconstructPath()
+// Find shortest path using BFS
 function findPath(start, end) {
     const queue = [start];
-    const visited = new Set();
+    const visited = new Set([start.id]);
     const parentMap = new Map();
-    
-    visited.add(start.id);
-    
-    while (queue.length > 0) {
-        const current = queue.shift();
-
-        if (current.id === end.id) {
-            let path = reconstructPath(start, end, parentMap);
-            console.log("findPath result:", path); // Debug output
-            if (!Array.isArray(path)) {
-                console.error("findPath did not return an array!", path);
-            }
-            return path;
-        }
-
-        for (const neighbor of current.neighbors) {
-            if (!visited.has(neighbor.id)) {
-                visited.add(neighbor.id);
-                parentMap.set(neighbor.id, current);
-                queue.push(neighbor);
-            }
-        }
-    }
-
-    console.error("No path found from", start, "to", end);
-    return null; // No path found
-}
-
-
-
-// Find shortest path (using BFS)
-function findPath(start, end) {
-    let queue = [start];
-    let visited = new Set([start.id]);
-    let parentMap = new Map();
 
     while (queue.length) {
-        let current = queue.shift();
+        const current = queue.shift();
         if (current.id === end.id) return reconstructPath(start, end, parentMap);
         
         current.connections.forEach(connId => {
-            let next = locations.find(loc => loc.id === connId);
+            const next = locations.find(loc => loc.id === connId);
             if (next && !visited.has(next.id)) {
                 visited.add(next.id);
                 queue.push(next);
-                parentMap.set(next.id, current);
+                parentMap.set(next.id, current.id);
             }
         });
     }
     return null;
 }
 
+// Reconstruct path
+function reconstructPath(start, end, parentMap) {
+    let path = [];
+    let currentId = end.id;
+
+    while (parentMap.has(currentId)) {
+        path.unshift(locations.find(loc => loc.id === currentId));
+        currentId = parentMap.get(currentId);
+    }
+
+    path.unshift(start);
+    return path;
+}
+
+// Initialize on page load
 document.addEventListener('DOMContentLoaded', initialize);
