@@ -246,7 +246,12 @@ function findPath(start, end) {
         const current = queue.shift();
 
         if (current.id === end.id) {
-            return reconstructPath(start, end, parentMap);
+            let path = reconstructPath(start, end, parentMap);
+            console.log("findPath result:", path); // Debug output
+            if (!Array.isArray(path)) {
+                console.error("findPath did not return an array!", path);
+            }
+            return path;
         }
 
         for (const neighbor of current.neighbors) {
@@ -258,8 +263,10 @@ function findPath(start, end) {
         }
     }
 
+    console.error("No path found from", start, "to", end);
     return null; // No path found
 }
+
 
 
 // Find shortest path (using BFS)
