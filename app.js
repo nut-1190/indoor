@@ -1,15 +1,15 @@
-// Indoor Navigation System - Main Application Logic
-
+// Global variables
 let locations = [];
 let currentLocation = null;
 let destinationLocation = null;
 let html5QrCode = null;
 
+// DOM Elements
 const floorPlanImg = document.getElementById('floor-plan-img');
 const routeOverlay = document.getElementById('route-overlay');
 const currentMarker = document.getElementById('current-marker');
 const destinationMarker = document.getElementById('destination-marker');
-const currentPositionText = document.getElementById('current-position-text');
+const sourceDropdown = document.getElementById('source-dropdown');
 const destinationDropdown = document.getElementById('destination-dropdown');
 const navigateBtn = document.getElementById('navigate-btn');
 const scanQrBtn = document.getElementById('scan-qr');
@@ -17,42 +17,40 @@ const qrScannerModal = document.getElementById('qr-scanner-modal');
 const closeBtn = document.querySelector('.close-btn');
 const directionsList = document.getElementById('directions-list');
 
+// Initialize the application
 async function initialize() {
     try {
+        // Load location data
         const response = await fetch('data/locations.json');
         const data = await response.json();
         locations = data.locations;
-
+        
+        populateSourceDropdown();
         populateDestinationDropdown();
         setupEventListeners();
         setupCanvas();
-
+        
         console.log('Application initialized successfully');
     } catch (error) {
         console.error('Failed to initialize application:', error);
     }
 }
 
-function setupCanvas() {
-    const canvas = routeOverlay;
-    canvas.width = floorPlanImg.width;
-    canvas.height = floorPlanImg.height;
+// Populate source dropdown
+function populateSourceDropdown() {
+    while (sourceDropdown.options.length > 1) {
+        sourceDropdown.remove(1);
+    }
 
-    floorPlanImg.onload = () => {
-        canvas.width = floorPlanImg.clientWidth;
-        canvas.height = floorPlanImg.clientHeight;
-    };
-
-    window.addEventListener('resize', () => {
-        canvas.width = floorPlanImg.clientWidth;
-        canvas.height = floorPlanImg.clientHeight;
-
-        if (currentLocation && destinationLocation) {
-            drawRoute(currentLocation, destinationLocation);
-        }
+    locations.forEach(location => {
+        const option = document.createElement('option');
+        option.value = location.id;
+        option.textContent = location.name;
+        sourceDropdown.appendChild(option);
     });
 }
 
+// Populate destination dropdown
 function populateDestinationDropdown() {
     while (destinationDropdown.options.length > 1) {
         destinationDropdown.remove(1);
@@ -66,10 +64,24 @@ function populateDestinationDropdown() {
     });
 }
 
+// Set up event listeners
 function setupEventListeners() {
-    scanQrBtn.addEventListener('click', openQrScanner);
-    closeBtn.addEventListener('click', closeQrScanner);
+    // Handle manual source selection
+    sourceDropdown.addEventListener('change', function () {
+        const selectedId = this.value;
+        if (selectedId) {
+            currentLocation = locations.find(loc => loc.id === selectedId);
+            updateMarker(currentMarker, currentLocation.x, currentLocation.y);
+            navigateBtn.disabled = !destinationDropdown.value;
+        }
+    });
 
+    // Handle manual destination selection
+    destinationDropdown.addEventListener('change', function () {
+        navigateBtn.disabled = !destinationDropdown.value || !currentLocation;
+    });
+
+    // Handle navigation
     navigateBtn.addEventListener('click', () => {
         const selectedId = destinationDropdown.value;
         if (selectedId && currentLocation) {
@@ -81,100 +93,103 @@ function setupEventListeners() {
         }
     });
 
-    destinationDropdown.addEventListener('change', () => {
-        navigateBtn.disabled = !destinationDropdown.value || !currentLocation;
-    });
+    // QR Scanner button
+    scanQrBtn.addEventListener('click', openQrScanner);
+    closeBtn.addEventListener('click', closeQrScanner);
 }
 
+// Open QR Scanner
 function openQrScanner() {
     qrScannerModal.classList.remove('hidden');
 
     const scannerArea = document.getElementById('scanner-area');
-
     html5QrCode = new Html5Qrcode('scanner-area');
-
-    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
 
     html5QrCode.start(
         { facingMode: "environment" },
-        config,
+        { fps: 10, qrbox: { width: 250, height: 250 } },
         onQrCodeSuccess,
         onQrCodeError
-    ).catch(err => {
-        console.error('QR Scanner failed to start:', err);
-    });
+    ).catch(err => console.error('QR Scanner failed:', err));
 }
 
+// Close QR Scanner
 function closeQrScanner() {
     qrScannerModal.classList.add('hidden');
-
     if (html5QrCode && html5QrCode.isScanning) {
-        html5QrCode.stop().catch(err => {
-            console.error('Error stopping QR scanner:', err);
-        });
+        html5QrCode.stop().catch(err => console.error('Error stopping QR scanner:', err));
     }
 }
 
+// Handle QR code scan
 function onQrCodeSuccess(qrCodeMessage) {
-    console.log('QR Code detected:', qrCodeMessage);
-
     const scannedLocation = locations.find(loc => loc.id === qrCodeMessage);
 
     if (scannedLocation) {
         currentLocation = scannedLocation;
-        currentPositionText.textContent = scannedLocation.name;
-
         updateMarker(currentMarker, scannedLocation.x, scannedLocation.y);
+        sourceDropdown.value = scannedLocation.id;
         navigateBtn.disabled = !destinationDropdown.value;
         closeQrScanner();
-
-        if (destinationLocation) {
-            drawRoute(currentLocation, destinationLocation);
-            generateDirections(currentLocation, destinationLocation);
-        }
     } else {
-        alert('Unknown location code: ' + qrCodeMessage);
+        alert('Unknown location: ' + qrCodeMessage);
     }
 }
 
 function onQrCodeError(err) {
-    console.error('QR Code error:', err);
+    console.error('QR Scanner error:', err);
 }
 
+// Update marker position
 function updateMarker(marker, x, y) {
     const scaleX = floorPlanImg.clientWidth / floorPlanImg.naturalWidth;
     const scaleY = floorPlanImg.clientHeight / floorPlanImg.naturalHeight;
-
     marker.style.left = `${x * scaleX}px`;
     marker.style.top = `${y * scaleY}px`;
     marker.style.display = 'block';
 }
 
+// Draw route between locations
 function drawRoute(start, end) {
     const path = findPath(start, end);
-
     if (!path || path.length < 2) {
-        console.error('No valid path found');
+        console.error('No path found');
         return;
     }
 
     const ctx = routeOverlay.getContext('2d');
     ctx.clearRect(0, 0, routeOverlay.width, routeOverlay.height);
-
-    const scaleX = floorPlanImg.clientWidth / floorPlanImg.naturalWidth;
-    const scaleY = floorPlanImg.clientHeight / floorPlanImg.naturalHeight;
-
     ctx.strokeStyle = '#e74c3c';
     ctx.lineWidth = 5;
     ctx.beginPath();
-    ctx.moveTo(path[0].x * scaleX, path[0].y * scaleY);
-
-    for (let i = 1; i < path.length; i++) {
-        ctx.lineTo(path[i].x * scaleX, path[i].y * scaleY);
-    }
-
+    
+    ctx.moveTo(path[0].x, path[0].y);
+    path.forEach(point => ctx.lineTo(point.x, point.y));
+    
     ctx.stroke();
     updateMarker(destinationMarker, end.x, end.y);
+}
+
+// Find shortest path (using BFS)
+function findPath(start, end) {
+    let queue = [start];
+    let visited = new Set([start.id]);
+    let parentMap = new Map();
+
+    while (queue.length) {
+        let current = queue.shift();
+        if (current.id === end.id) return reconstructPath(start, end, parentMap);
+        
+        current.connections.forEach(connId => {
+            let next = locations.find(loc => loc.id === connId);
+            if (next && !visited.has(next.id)) {
+                visited.add(next.id);
+                queue.push(next);
+                parentMap.set(next.id, current);
+            }
+        });
+    }
+    return null;
 }
 
 document.addEventListener('DOMContentLoaded', initialize);

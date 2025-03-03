@@ -15,21 +15,27 @@
     
     <main>
         <div id="control-panel">
-            <div id="current-location">
-                <h2>Current Location</h2>
-                <p id="current-position-text">Unknown</p>
+            <!-- Source selection -->
+            <div id="source-selector">
+                <h2>Select Your Current Location</h2>
+                <select id="source-dropdown">
+                    <option value="">-- Select Current Location --</option>
+                </select>
                 <button id="scan-qr">Scan QR Code</button>
             </div>
-            
+
+            <!-- Destination selection -->
             <div id="destination-selector">
                 <h2>Select Destination</h2>
                 <select id="destination-dropdown">
                     <option value="">-- Select Destination --</option>
                 </select>
-                <button id="navigate-btn" disabled>Find Route</button>
             </div>
+
+            <!-- Navigate button -->
+            <button id="navigate-btn" disabled>Find Route</button>
         </div>
-        
+
         <div id="map-container">
             <div id="floor-plan">
                 <img src="images/floorplan.png" alt="Floor Plan" id="floor-plan-img">
@@ -37,23 +43,23 @@
                 <div id="current-marker" class="marker"></div>
                 <div id="destination-marker" class="marker destination"></div>
             </div>
-            
+
             <div id="directions-panel">
                 <h2>Directions</h2>
                 <ol id="directions-list"></ol>
             </div>
         </div>
     </main>
-    
-    <div id="qr-scanner-modal" class="modal hidden">
+
+    <div id="qr-scanner-modal" class="hidden">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
             <h2>Scan QR Code</h2>
             <div id="scanner-area"></div>
         </div>
     </div>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js"></script>
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="app.js"></script>
 </body>
 </html>
