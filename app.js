@@ -197,24 +197,24 @@ function updateMarker(marker, x, y, prevX, prevY) {
 function drawRoute(start, end) {
     console.log("Drawing route...");
     const path = findPath(start, end);
-    
+
     if (!path || path.length < 2) {
-        console.error('No path found');
+        console.error("No path found");
         return;
     }
 
     console.log("Path found:", path);
 
     // Clear previous route
-    const ctx = routeOverlay.getContext('2d');
+    const ctx = routeOverlay.getContext("2d");
     ctx.clearRect(0, 0, routeOverlay.width, routeOverlay.height);
-    ctx.strokeStyle = '#e74c3c';
+    ctx.strokeStyle = "#e74c3c";
     ctx.lineWidth = 5;
     ctx.beginPath();
 
-    // Start drawing path
+    // Draw route on canvas
     ctx.moveTo(path[0].x, path[0].y);
-    path.forEach(point => ctx.lineTo(point.x, point.y));
+    path.forEach((point) => ctx.lineTo(point.x, point.y));
     ctx.stroke();
 
     // Ensure the arrow marker exists
@@ -226,8 +226,9 @@ function drawRoute(start, end) {
         document.body.appendChild(arrowMarker);
     }
 
-    // Move arrow along the path
-    function moveArrow(index) {
+    // Animate arrow along the path
+    let index = 0;
+    function moveArrow() {
         if (index >= path.length) return;
 
         const point = path[index];
@@ -240,22 +241,30 @@ function drawRoute(start, end) {
             arrowMarker.style.transform = `rotate(${angle}deg)`;
         }
 
-        // Move to the next step after delay
-        setTimeout(() => moveArrow(index + 1), 1000);
+        index++;
+        if (index < path.length) {
+            requestAnimationFrame(moveArrow);
+        }
     }
 
-    moveArrow(0);
+    moveArrow();
 }
+
 
 
 // Update marker position (modify this to apply to arrow marker)
 function updateMarker(marker, x, y) {
-    const scaleX = floorPlanImg.clientWidth / floorPlanImg.naturalWidth;
-    const scaleY = floorPlanImg.clientHeight / floorPlanImg.naturalHeight;
-    marker.style.left = `${x * scaleX}px`;
-    marker.style.top = `${y * scaleY}px`;
-    marker.style.display = 'block';
+    const floorPlan = document.getElementById("floor-plan-img");
+    const rect = floorPlan.getBoundingClientRect();
+
+    // Adjust marker position to align correctly with the floor plan
+    marker.style.left = `${rect.left + x}px`;
+    marker.style.top = `${rect.top + y}px`;
+    marker.style.display = "block";
+
+    console.log(`Arrow moved to: (${x}, ${y})`);
 }
+
 
 
 
