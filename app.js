@@ -17,6 +17,25 @@ const qrScannerModal = document.getElementById('qr-scanner-modal');
 const closeBtn = document.querySelector('.close-btn');
 const directionsList = document.getElementById('directions-list');
 
+function adjustCanvasSize() {
+    const floorPlanImg = document.getElementById("floor-plan-img");
+    const canvas = document.getElementById("route-overlay");
+
+    if (!floorPlanImg.complete) {
+        floorPlanImg.onload = adjustCanvasSize; // Re-run once image loads
+        return;
+    }
+
+    canvas.width = floorPlanImg.clientWidth;
+    canvas.height = floorPlanImg.clientHeight;
+
+    console.log(`Canvas size set: ${canvas.width}x${canvas.height}`);
+}
+
+// Ensure the canvas is properly sized when the page loads or resizes
+window.onload = adjustCanvasSize;
+window.onresize = adjustCanvasSize;
+
 // Set up the canvas for route drawing
 function setupCanvas() {
     const canvas = routeOverlay;
