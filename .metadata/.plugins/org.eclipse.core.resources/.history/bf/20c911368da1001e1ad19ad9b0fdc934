@@ -1,0 +1,42 @@
+package test;
+
+import java.sql.*;
+public class hello {
+	public static void main(String args[]) {
+		Connection con=null;
+		String Fname,Lname,Arrival,Departure,Date,Seat,Source,Destination;
+		int ID,amount,Flight_ID;
+		try {
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+			con=DriverManager.getConnection("jdbc:mysql://localhost:3306/Airline","root","");
+			if(!con.isClosed()) {
+				System.out.println("Connected Succesfully");
+				
+			}
+			Statement st = null;
+			ResultSet rs = null;
+			String qry = "select * from Customer";
+			st = con.createStatement();
+			rs = st.executeQuery(qry);
+			while(rs.next()) {
+				Fname=rs.getString("Fname");
+				Lname=rs.getString("Lname");
+				Departure=rs.getString("Departure");
+				Arrival=rs.getString("Arrival");
+				Source=rs.getString("Source");
+				Destination=rs.getString("Destination");
+				ID=rs.getInt("ID");
+				Date=rs.getString("Date");
+				amount=rs.getInt("Amount");
+				Seat=rs.getString("Seat");
+				Flight_ID=rs.getInt("Flight_ID");
+				
+				System.out.println(Fname+" "+Lname+" "+Departure+" "+Arrival+" "+Source+" "+Destination+" "+ID+" "+Date+" "+amount+" "+Seat+" "+Flight_ID);
+			}
+		}
+		catch(Exception e){
+			System.err.println("Exeception:"+e.getMessage());
+		}
+	}
+
+}

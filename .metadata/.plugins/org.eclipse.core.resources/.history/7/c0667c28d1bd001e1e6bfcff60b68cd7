@@ -1,0 +1,31 @@
+package test;
+import java.sql.*;
+import java.util.*;
+public class JDBC5 {
+	public static void main(String args[]) {
+		Connection con=null;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			con=DriverManager.getConnection("jdbc:mysql://localhost:3306/jdbc","root","");
+			if(!con.isClosed()) {
+				System.out.println("connected.");
+			}
+			Scanner sc=new Scanner(System.in);
+			String sql="insert into values(?,?)";
+			PreparedStatement ps=con.prepareStatement(sql);
+			String Ename=sc.next();
+			String designation=sc.next();
+			ps.setString(1, Ename);
+			ps.setString(2, designation);
+			int r=ps.executeUpdate();
+			if(r>0) {
+				System.out.println("inserted.");
+			}
+			PreparedStatement ps1=con.prepareStatement("update set designation='AsoP'");
+			int r1=ps1.executeUpdate();
+		}catch(Exception e) {
+			System.err.print(e.getMessage());
+		}
+	}
+
+}

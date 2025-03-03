@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3498db">
+    <title>Indoor Navigation System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <header>
+        <h1>Indoor Navigation</h1>
+    </header>
+    
+    <main>
+        <div id="control-panel">
+            <div id="current-location">
+                <h2>Current Location</h2>
+                <p id="current-position-text">Unknown</p>
+                <button id="scan-qr">Scan QR Code</button>
+            </div>
+            
+            <div id="destination-selector">
+                <h2>Select Destination</h2>
+                <select id="destination-dropdown">
+                    <option value="">-- Select Destination --</option>
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+                <button id="navigate-btn" disabled>Find Route</button>
+            </div>
+        </div>
+        
+        <div id="map-container">
+            <div id="floor-plan">
+                <img src="images/floorplan.png" alt="Floor Plan" id="floor-plan-img">
+                <canvas id="route-overlay"></canvas>
+                <div id="current-marker" class="marker"></div>
+                <div id="destination-marker" class="marker destination"></div>
+            </div>
+            
+            <div id="directions-panel">
+                <h2>Directions</h2>
+                <ol id="directions-list"></ol>
+            </div>
+        </div>
+    </main>
+    
+    <div id="qr-scanner-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Scan QR Code</h2>
+            <div id="scanner-area"></div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

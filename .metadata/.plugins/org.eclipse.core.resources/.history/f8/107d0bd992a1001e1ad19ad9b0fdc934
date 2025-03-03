@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-image: url('airplane2.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    nav {
+      background-color: purple;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      opacity: 1;
+      visibility: visible;
+    }
+
+    nav a {
+      float: left;
+      display: block;
+      color: white;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+    }
+
+    nav a:hover {
+      background-color: #ddd;
+      color: black;
+    }
+
+    /* Hide the nav bar by default */
+    body:hover nav {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    /* Show the nav bar when body is hovered */
+    body:hover nav:hover {
+      opacity: 1;
+      visibility: visible;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="#Home">Home</a>
+  <a href="#Services">Services</a>
+  <a href="#About">About</a>
+  <a href="bookings.html">Bookings</a>
+  <a href="#Contact">Contact</a>
+</nav>
+
+<!-- Your content goes here -->
+
+</body>
+</html>

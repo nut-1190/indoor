@@ -1,0 +1,4 @@
+INDEX VERSION 1.4+/home/natasha/Natasha/.metadata/.plugins/org.eclipse.wst.jsdt.core/indexes
+1654703025.index
+2908168585.index
+2078267704.index

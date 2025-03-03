@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Payroll</title>
+</head>
+<body>
+<h1>Employee details:</h1>
+<form action="Serv" method="post">
+Ename
+<input type="text" name="Ename" required>
+Ehours
+<input type="text" name="Ehours" required>
+Prate
+<input type="text" name="Prate"required>
+Tax
+<input type="text" name="Tax"required>
+<input type="submit" value="submit">
+
+
+
+</form>
+
+</body>
+</html>

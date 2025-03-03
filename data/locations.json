@@ -1,0 +1,76 @@
+{
+    "locations": [
+      {
+        "id": "HALL-MAIN",
+        "name": "Main Hallway",
+        "x": 320,
+        "y": 150,
+        "floor": "ground",
+        "type": "hallway",
+        "connections": ["HALL-SEC", "ROOM-1", "ROOM-2", "ROOM-3"]
+      },
+      {
+        "id": "HALL-SEC",
+        "name": "Secondary Hallway",
+        "x": 150,
+        "y": 250,
+        "floor": "ground",
+        "type": "hallway",
+        "connections": ["HALL-MAIN", "ROOM-4", "ROOM-5", "EXIT-1"]
+      },
+      {
+        "id": "ROOM-1",
+        "name": "Classroom 101",
+        "x": 250,
+        "y": 100,
+        "floor": "ground",
+        "type": "room",
+        "connections": ["HALL-MAIN"]
+      },
+      {
+        "id": "ROOM-2",
+        "name": "Classroom 102",
+        "x": 350,
+        "y": 100,
+        "floor": "ground",
+        "type": "room",
+        "connections": ["HALL-MAIN"]
+      },
+      {
+        "id": "ROOM-3",
+        "name": "Laboratory",
+        "x": 450,
+        "y": 150,
+        "floor": "ground",
+        "type": "room",
+        "connections": ["HALL-MAIN"]
+      },
+      {
+        "id": "ROOM-4",
+        "name": "Office",
+        "x": 100,
+        "y": 200,
+        "floor": "ground",
+        "type": "room",
+        "connections": ["HALL-SEC"]
+      },
+      {
+        "id": "ROOM-5",
+        "name": "Conference Room",
+        "x": 100,
+        "y": 300,
+        "floor": "ground",
+        "type": "room",
+        "connections": ["HALL-SEC"]
+      },
+      {
+        "id": "EXIT-1",
+        "name": "Main Exit",
+        "x": 200,
+        "y": 350,
+        "floor": "ground",
+        "type": "exit",
+        "connections": ["HALL-SEC"]
+      }
+    ]
+  }

@@ -1,0 +1,66 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  
+  header {
+    background-color: #fcf8f8;
+    color: #272626;
+    padding: 10px 0;
+  }
+  
+  nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  nav ul li {
+    display: inline;
+    margin-right: 20px;
+  }
+  
+  nav ul li a {
+    color: #363333;
+    text-decoration: none;
+  }
+  
+  main {
+    padding: 20px;
+  }
+  
+  .search {
+    margin-bottom: 20px;
+  }
+  
+  .search input[type=text] {
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .search button {
+    padding: 8px 16px;
+    font-size: 16px;
+    background-color: #333;
+    color: #333030;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .map {
+    height: 400px;
+    margin-bottom: 20px;
+  }
+  
+  .console {
+    height: 100px;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    padding: 10px;
+    overflow-y: auto;
+  }
+  

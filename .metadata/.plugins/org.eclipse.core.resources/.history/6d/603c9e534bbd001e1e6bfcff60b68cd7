@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>voting</title>
+</head>
+<body>
+<h1>Enter details:</h1>
+Username:
+<input type="text" name="UserName"required>
+gender:
+<input type="text" name="gender"required>
+age:
+<input type="text" name="Age"required>
+<input type="submit" value="submit">
+</body>
+</html>

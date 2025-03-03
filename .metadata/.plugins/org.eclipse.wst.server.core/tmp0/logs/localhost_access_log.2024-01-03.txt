@@ -1,0 +1,9 @@
+127.0.0.1 - - [03/Jan/2024:22:51:19 +0530] "GET / HTTP/1.1" 404 751
+127.0.0.1 - - [03/Jan/2024:22:51:20 +0530] "GET /Airline_Management/base.html HTTP/1.1" 200 3841
+127.0.0.1 - - [03/Jan/2024:22:51:20 +0530] "GET /Airline_Management/air1.jpg HTTP/1.1" 200 225939
+127.0.0.1 - - [03/Jan/2024:22:51:20 +0530] "GET /Airline_Management/airplane2.jpg HTTP/1.1" 200 34635
+127.0.0.1 - - [03/Jan/2024:22:51:20 +0530] "GET /Airline_Management/air.jpg HTTP/1.1" 304 -
+127.0.0.1 - - [03/Jan/2024:22:51:20 +0530] "GET /favicon.ico HTTP/1.1" 404 762
+127.0.0.1 - - [03/Jan/2024:22:54:57 +0530] "GET /flights.jsp HTTP/1.1" 404 741
+127.0.0.1 - - [03/Jan/2024:22:55:01 +0530] "GET /Airline_Management/bookings.html HTTP/1.1" 200 5483
+127.0.0.1 - - [03/Jan/2024:22:55:09 +0530] "GET /Customer HTTP/1.1" 404 759

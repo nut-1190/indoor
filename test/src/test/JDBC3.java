@@ -1,0 +1,43 @@
+package test;
+import java.io.*;
+import java.util.*;
+import java.sql.*;
+public class JDBC3 {
+	public static void main(String args[]) {
+		Connection con=null;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			con=DriverManager.getConnection("jdbc:mysql://localhost:3306/jdbc","root","");
+			if(!con.isClosed()) {
+				System.out.println("connected");
+			}
+			for(int i=0;i<2;i++) {
+			Scanner sc=new Scanner(System.in);
+			System.out.println("enter the details:");
+			String sql=("insert into Country values(?,?,?,?)");
+			PreparedStatement ps=con.prepareStatement(sql);
+			int CountryCode=sc.nextInt();
+			String capital=sc.next();
+			String continent=sc.next();
+			int population=sc.nextInt();
+			ps.setInt(1, CountryCode);
+			ps.setString(2, capital);
+			ps.setString(3, continent);
+			ps.setInt(4, population);
+			int r=ps.executeUpdate();
+			if (r>0) {
+				System.out.println("inserted succesfully");
+			}
+			} 
+			Statement stmt=con.createStatement();
+			ResultSet rs=stmt.executeQuery("select * from Country order by population");
+			while(rs.next()) {
+				System.out.println(rs.getInt(1)+" "+rs.getString(2)+" "+rs.getString(3)+" "+rs.getInt(4));
+			}
+		} catch (Exception e) {
+			System.err.print(e.getMessage());
+		}
+	}
+
+}
+
