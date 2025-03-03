@@ -17,6 +17,36 @@ const qrScannerModal = document.getElementById('qr-scanner-modal');
 const closeBtn = document.querySelector('.close-btn');
 const directionsList = document.getElementById('directions-list');
 
+// Set up the canvas for route drawing
+function setupCanvas() {
+    const canvas = routeOverlay;
+    canvas.width = floorPlanImg.width;
+    canvas.height = floorPlanImg.height;
+
+    // Update canvas size when image loads
+    floorPlanImg.onload = () => {
+        canvas.width = floorPlanImg.clientWidth;
+        canvas.height = floorPlanImg.clientHeight;
+    };
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        canvas.width = floorPlanImg.clientWidth;
+        canvas.height = floorPlanImg.clientHeight;
+
+        // Redraw route if needed
+        if (currentLocation && destinationLocation) {
+            drawRoute(currentLocation, destinationLocation);
+        }
+    });
+}
+
+// Now define initialize(), which will call setupCanvas()
+function initialize() {
+    setupCanvas(); // Call it here
+    setupEventListeners();
+}
+
 // Initialize the application
 async function initialize() {
     try {
@@ -169,6 +199,48 @@ function drawRoute(start, end) {
     ctx.stroke();
     updateMarker(destinationMarker, end.x, end.y);
 }
+// Reconstruct the shortest path from the parent map
+function reconstructPath(start, end, parentMap) {
+    const path = [];
+    let current = end;
+
+    while (current.id !== start.id) {
+        path.unshift(current);
+        current = parentMap.get(current.id);
+        if (!current) return null;  // Handle broken paths
+    }
+
+    path.unshift(start); // Include the start node
+    return path;
+}
+
+// Now define findPath(), which uses reconstructPath()
+function findPath(start, end) {
+    const queue = [start];
+    const visited = new Set();
+    const parentMap = new Map();
+    
+    visited.add(start.id);
+    
+    while (queue.length > 0) {
+        const current = queue.shift();
+
+        if (current.id === end.id) {
+            return reconstructPath(start, end, parentMap);
+        }
+
+        for (const neighbor of current.neighbors) {
+            if (!visited.has(neighbor.id)) {
+                visited.add(neighbor.id);
+                parentMap.set(neighbor.id, current);
+                queue.push(neighbor);
+            }
+        }
+    }
+
+    return null; // No path found
+}
+
 
 // Find shortest path (using BFS)
 function findPath(start, end) {
