@@ -63,4 +63,13 @@ body {
     padding: 10px;
     overflow-y: auto;
   }
-  
+  .arrow-marker {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: url('images/arrow.png') no-repeat center center;
+    background-size: contain;
+    transform-origin: center;
+    transition: transform 0.5s linear, left 0.5s linear, top 0.5s linear;
+}
+

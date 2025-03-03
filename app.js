@@ -40,6 +40,7 @@ function setupCanvas() {
 // Initialize application
 async function initialize() {
     try {
+        // Load location data
         const response = await fetch('data/locations.json');
         const data = await response.json();
         locations = data.locations;
@@ -48,7 +49,12 @@ async function initialize() {
         populateDestinationDropdown();
         setupEventListeners();
         setupCanvas();
-        
+
+        // Create the arrow marker dynamically
+        const arrowMarker = document.createElement("div");
+        arrowMarker.classList.add("arrow-marker");
+        document.body.appendChild(arrowMarker);
+
         console.log('Application initialized successfully');
     } catch (error) {
         console.error('Failed to initialize application:', error);
@@ -107,21 +113,19 @@ function setupEventListeners() {
         navigateBtn.disabled = !destinationDropdown.value || !currentLocation;
     });
 
-    navigateBtn.addEventListener('click', () => {
-        const selectedId = destinationDropdown.value;
-        if (selectedId && currentLocation) {
-            destinationLocation = locations.find(loc => loc.id === selectedId);
-            if (destinationLocation) {
-                const path = findPath(currentLocation, destinationLocation);
-                if (path) {
-                    drawRoute(path);
-                    generateDirections(path);
-                } else {
-                    console.error('No route found');
-                }
-            }
+    // Handle navigation button click
+navigateBtn.addEventListener('click', () => {
+    const selectedId = destinationDropdown.value;
+    if (selectedId && currentLocation) {
+        destinationLocation = locations.find(loc => loc.id === selectedId);
+        if (destinationLocation) {
+            console.log("Navigating from", currentLocation.name, "to", destinationLocation.name);
+            drawRoute(currentLocation, destinationLocation);  // Ensure this is being called
+            generateDirections(findPath(currentLocation, destinationLocation)); // Pass correct path
         }
-    });
+    }
+});
+
 
     scanQrBtn.addEventListener('click', openQrScanner);
     closeBtn.addEventListener('click', closeQrScanner);
@@ -167,6 +171,84 @@ function onQrCodeError(err) {
 }
 
 // Update marker position
+function updateMarker(marker, x, y, prevX, prevY) {
+    const scaleX = floorPlanImg.clientWidth / floorPlanImg.naturalWidth;
+    const scaleY = floorPlanImg.clientHeight / floorPlanImg.naturalHeight;
+
+    marker.style.transition = "left 0.5s linear, top 0.5s linear";
+    marker.style.left = `${x * scaleX}px`;
+    marker.style.top = `${y * scaleY}px`;
+    marker.style.display = 'block';
+
+    // Rotate the arrow based on movement direction
+    if (prevX !== undefined && prevY !== undefined) {
+        const angle = Math.atan2(y - prevY, x - prevX) * (180 / Math.PI);
+        arrowMarker.style.transform = `rotate(${angle}deg)`;
+        arrowMarker.style.left = `${x * scaleX}px`;
+        arrowMarker.style.top = `${y * scaleY}px`;
+    }
+}
+
+
+
+// Draw route between locations
+// Draw route between locations with animated arrow
+// Draw route with animated arrow
+function drawRoute(start, end) {
+    console.log("Drawing route...");
+    const path = findPath(start, end);
+    
+    if (!path || path.length < 2) {
+        console.error('No path found');
+        return;
+    }
+
+    console.log("Path found:", path);
+
+    // Clear previous route
+    const ctx = routeOverlay.getContext('2d');
+    ctx.clearRect(0, 0, routeOverlay.width, routeOverlay.height);
+    ctx.strokeStyle = '#e74c3c';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+
+    // Start drawing path
+    ctx.moveTo(path[0].x, path[0].y);
+    path.forEach(point => ctx.lineTo(point.x, point.y));
+    ctx.stroke();
+
+    // Ensure the arrow marker exists
+    let arrowMarker = document.getElementById("arrow-marker");
+    if (!arrowMarker) {
+        arrowMarker = document.createElement("div");
+        arrowMarker.id = "arrow-marker";
+        arrowMarker.classList.add("arrow-marker");
+        document.body.appendChild(arrowMarker);
+    }
+
+    // Move arrow along the path
+    function moveArrow(index) {
+        if (index >= path.length) return;
+
+        const point = path[index];
+        updateMarker(arrowMarker, point.x, point.y);
+
+        // Rotate arrow to face next step
+        if (index < path.length - 1) {
+            const nextPoint = path[index + 1];
+            const angle = Math.atan2(nextPoint.y - point.y, nextPoint.x - point.x) * (180 / Math.PI);
+            arrowMarker.style.transform = `rotate(${angle}deg)`;
+        }
+
+        // Move to the next step after delay
+        setTimeout(() => moveArrow(index + 1), 1000);
+    }
+
+    moveArrow(0);
+}
+
+
+// Update marker position (modify this to apply to arrow marker)
 function updateMarker(marker, x, y) {
     const scaleX = floorPlanImg.clientWidth / floorPlanImg.naturalWidth;
     const scaleY = floorPlanImg.clientHeight / floorPlanImg.naturalHeight;
@@ -175,20 +257,7 @@ function updateMarker(marker, x, y) {
     marker.style.display = 'block';
 }
 
-// Draw route between locations
-function drawRoute(path) {
-    const ctx = routeOverlay.getContext('2d');
-    ctx.clearRect(0, 0, routeOverlay.width, routeOverlay.height);
-    ctx.strokeStyle = '#e74c3c';
-    ctx.lineWidth = 5;
-    ctx.beginPath();
-    
-    ctx.moveTo(path[0].x, path[0].y);
-    path.forEach(point => ctx.lineTo(point.x, point.y));
-    
-    ctx.stroke();
-    updateMarker(destinationMarker, path[path.length - 1].x, path[path.length - 1].y);
-}
+
 
 // Find shortest path using BFS
 function findPath(start, end) {
