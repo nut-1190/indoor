@@ -192,25 +192,47 @@ function drawRoute(path) {
 
 // Find shortest path using BFS
 function findPath(start, end) {
-    const queue = [start];
-    const visited = new Set([start.id]);
-    const parentMap = new Map();
-
-    while (queue.length) {
-        const current = queue.shift();
-        if (current.id === end.id) return reconstructPath(start, end, parentMap);
-        
-        current.connections.forEach(connId => {
-            const next = locations.find(loc => loc.id === connId);
-            if (next && !visited.has(next.id)) {
-                visited.add(next.id);
-                queue.push(next);
-                parentMap.set(next.id, current.id);
-            }
-        });
+    if (!start || !end) {
+        console.error("Invalid start or end location:", start, end);
+        return null;
     }
+
+    console.log("Finding path from", start.name, "to", end.name);
+
+    const queue = [start.id];
+    const visited = new Set();
+    const parentMap = new Map();
+    
+    visited.add(start.id);
+    
+    while (queue.length > 0) {
+        const currentId = queue.shift();
+        const current = locations.find(loc => loc.id === currentId);
+        
+        if (!current) {
+            console.warn("Location not found for ID:", currentId);
+            continue;
+        }
+
+        console.log("Visiting:", current.name, "Connections:", current.connections);
+
+        if (current.id === end.id) {
+            return reconstructPath(start, end, parentMap);
+        }
+
+        for (const neighborId of current.connections) {
+            if (!visited.has(neighborId)) {
+                visited.add(neighborId);
+                parentMap.set(neighborId, currentId);
+                queue.push(neighborId);
+            }
+        }
+    }
+
+    console.error("No path found from", start.name, "to", end.name);
     return null;
 }
+
 
 // Reconstruct path
 function reconstructPath(start, end, parentMap) {
