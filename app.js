@@ -99,17 +99,18 @@ function generateDirections(path) {
     const directionsList = document.getElementById('directions-list');
     directionsList.innerHTML = '';
 
-    if (!path || path.length === 0) {
+    if (!Array.isArray(path) || path.length === 0) {
         directionsList.innerHTML = '<li>No route found.</li>';
         return;
     }
 
     path.forEach((point, index) => {
         const step = document.createElement('li');
-        step.textContent = `Step ${index + 1}: Move to ${point.name}`;
+        step.textContent = `Step ${index + 1}: Move to ${point.name || 'Unknown'}`;
         directionsList.appendChild(step);
     });
 }
+
 
 
 
