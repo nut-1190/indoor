@@ -94,6 +94,7 @@ function populateDestinationDropdown() {
     });
 }
 // Generate step-by-step directions
+// Generate step-by-step directions from the path
 function generateDirections(path) {
     const directionsList = document.getElementById('directions-list');
     directionsList.innerHTML = '';
@@ -109,6 +110,7 @@ function generateDirections(path) {
         directionsList.appendChild(step);
     });
 }
+
 
 
 // Set up event listeners
